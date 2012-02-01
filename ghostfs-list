@@ -21,14 +21,14 @@ use Inline C => <<'EOC';
 
 void lstat_nsec(char* fname)
 {
-    struct stat st;
+	struct stat st;
 	Inline_Stack_Vars;
 	Inline_Stack_Reset;
 
-    if (-1 == lstat(fname, &st)) {
+	if (-1 == lstat(fname, &st)) {
 		Inline_Stack_Push(&PL_sv_undef);
 		Inline_Stack_Done;
-        return;
+		return;
 	}
 
 	Inline_Stack_Push(sv_2mortal(newSViv((long)st.st_atim.tv_nsec)));
