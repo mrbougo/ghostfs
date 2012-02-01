@@ -2,9 +2,13 @@
 use strict;
 use warnings;
 use Fcntl ':mode';
+use Fuse;
 
+use POSIX qw(EINVAL ENOENT);
 
 use Data::Dumper;
+
+my $tree;
 
 my %types_stoi = (
 	'f' => S_IFREG,
@@ -80,3 +84,59 @@ sub next_record {
 	return $out;
 }
 
+
+sub getfile {
+	my @path = split '/', shift;
+	shift @path; # $_[0] starts with /
+
+	my $node = $tree;
+	foreach (@path) {
+		$node = $node->{children}{$_} or return undef;
+	}
+	return $node;
+}
+
+sub getattr {
+	my $file = getfile(shift) or return -ENOENT();
+
+	my $dev = 0;
+	my $ino = 1;
+	my $mode = $types_stoi{$file->{type}} | oct $file->{perm};
+	my $nlink = 1;
+	my ($uid,$gid) = split ':', $file->{usergroup};
+	my $rdev = 0;
+	my $size = $file->{size};
+	my $atime = int $file->{atime};
+	my $mtime = int $file->{mtime};
+	my $ctime = int $file->{ctime};
+	my $blksize = 512;
+	my $blocks = 1;
+
+	return ($dev, $ino, $mode, $nlink, $uid, $gid, $rdev, $size, $atime, $mtime,
+	        $ctime, $blksize, $blocks);
+}
+
+sub readlink {
+	my $file = getfile(shift) or return -ENOENT();
+
+	return -EINVAL() if $file->{type} ne 'l';
+	return $file->{linktarget};
+}
+
+sub getdir {
+	my $file = getfile(shift) or return -ENOENT();
+
+	return -EINVAL() if $file->{type} ne 'd';
+	return ('.', '..', keys %{$file->{children}});
+}
+
+my ($mountpoint, $listfname) = @ARGV;
+$tree = prepare_tree($listfname);
+
+Fuse::main(
+	debug => 1,
+	mountpoint => $mountpoint,
+	getattr => \&getattr,
+	readlink => \&readlink,
+	getdir => \&getdir,
+);
