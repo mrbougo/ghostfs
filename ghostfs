@@ -127,7 +127,7 @@ sub getdir {
 	my $file = getfile(shift) or return -ENOENT();
 
 	return -EINVAL() if $file->{type} ne 'd';
-	return ('.', '..', keys %{$file->{children}});
+	return ('.', '..', keys %{$file->{children}}, 0);
 }
 
 pod2usage({ -message => 'Wrong argument count', -exitval => 2 }) if @ARGV != 2;
