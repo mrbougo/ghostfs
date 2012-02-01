@@ -58,7 +58,7 @@ sub make_findfile {
 			warn "unsupported filemode ", sprintf("%#o", $mode), " in $path\n";
 			return 0;
 		}
-		my $perms = sprintf('%04o', $mode & 07777);
+		my $perms = sprintf('%#o', $mode & 07777);
 		my $target = $typechr eq 'l' ? readlink $_ : '';
 
 		my @stimes = @stat[8,9,10];
