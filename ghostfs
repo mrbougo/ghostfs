@@ -1,8 +1,10 @@
 #!/usr/bin/perl
 use strict;
 use warnings;
+
 use Fcntl ':mode';
 use Fuse;
+use Pod::Usage;
 
 use POSIX qw(EINVAL ENOENT);
 
@@ -21,7 +23,7 @@ my %types_stoi = (
 sub prepare_tree {
 	my ($fname) = @_;
 
-	open(my $f, "<", $fname) or die $!;
+	open(my $f, "<", $fname) or die "Could not open $fname: $!\n";
 
 	my %tree;
 	my @s; #stack, associates full directory paths with their parent node
@@ -36,7 +38,7 @@ sub prepare_tree {
 			 [dlf]    \000   #type
 			 .*?      \000   #link target
 			 [0-7]{4} \000$ #permissions
-			/sx or die "bad record: $_";
+			/sx or die "Bad record: $_\n";
 
 		my %entry;
 		my $path;
@@ -74,12 +76,12 @@ sub next_record {
 
 	my $out = '';
 	for (1 .. 9) {
-		die 'unexpected eof' if eof($f);
+		die "unexpected eof in list file\n" if eof($f);
 		$out = $out . readline($f);
 	}
 
 	#last newline:
-	read $f, $_, 1 or die;
+	read $f, $_, 1 or die "syntax error in list file\n";
 
 	return $out;
 }
@@ -130,11 +132,15 @@ sub getdir {
 	return ('.', '..', keys %{$file->{children}});
 }
 
+pod2usage({ -message => 'Wrong argument count', -exitval => 2 }) if @ARGV != 2;
+
 my ($mountpoint, $listfname) = @ARGV;
+die "Directory not found: $mountpoint\n" unless -d $mountpoint;
+die "File not found: $listfname\n" unless -f $listfname;
+
 $tree = prepare_tree($listfname);
 
 Fuse::main(
-	debug => 1,
 	mountpoint => $mountpoint,
 	getattr => \&getattr,
 	readlink => \&readlink,
