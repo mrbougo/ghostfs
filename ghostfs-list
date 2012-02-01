@@ -12,32 +12,6 @@ use Fcntl ':mode';
 use File::Find;
 use Pod::Usage;
 
-#Time::HiRes does not provide lstat, use inline C code instead
-use Inline C => <<'EOC';
-
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <unistd.h>
-
-void lstat_nsec(char* fname)
-{
-	struct stat st;
-	Inline_Stack_Vars;
-	Inline_Stack_Reset;
-
-	if (-1 == lstat(fname, &st)) {
-		Inline_Stack_Push(&PL_sv_undef);
-		Inline_Stack_Done;
-		return;
-	}
-
-	Inline_Stack_Push(sv_2mortal(newSViv((long)st.st_atim.tv_nsec)));
-	Inline_Stack_Push(sv_2mortal(newSViv((long)st.st_mtim.tv_nsec)));
-	Inline_Stack_Push(sv_2mortal(newSViv((long)st.st_ctim.tv_nsec)));
-	Inline_Stack_Done;
-}
-EOC
-
 my %types_itos = (
 	(S_IFREG) => 'f',
 	(S_IFDIR) => 'd',
@@ -61,9 +35,7 @@ sub make_findfile {
 		my $perms = sprintf('%#o', $mode & 07777);
 		my $target = $typechr eq 'l' ? readlink $_ : '';
 
-		my @stimes = @stat[8,9,10];
-		my @ntimes = lstat_nsec($_);
-		my @times = map "$stimes[$_].$ntimes[$_]", 0 .. 2;
+		my @times = @stat[8,9,10];
 		
 		local $, = "\000";
 		local $\ = "\000\n";
