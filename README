@@ -5,4 +5,9 @@ First create a list file using "ghostfs-list dir > listfile". Then, mount it usi
 
 For more info, read the included perldoc using the commands "perldoc ghostfs" and "perldoc ghostfs-list".
 
+Note:
+find can also be used to generate list files:
+	format='%p\0%U:%G\0%A@\0%T@\0%C@\0%s\0%y\0%l\0%#m\0\n'
+	( cd dir; find -printf "$format"; ) > list_file
+
 Licensing: WTFPL v2
