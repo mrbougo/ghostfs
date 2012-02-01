@@ -53,9 +53,13 @@ sub make_findfile {
 		my @stat = lstat $_;
 
 		my $mode = $stat[2];
-		my $typechr = $types_itos{$mode & S_IFMT} or die "unsupported filemode $mode in $path\n";
+		my $typechr = $types_itos{$mode & S_IFMT};
+		if (not defined $typechr) {
+			warn "unsupported filemode ", sprintf("%#o", $mode), " in $path\n";
+			return 0;
+		}
 		my $perms = sprintf('%04o', $mode & 07777);
-		my $target = $typechr eq 'l' ? readlink $path : '';
+		my $target = $typechr eq 'l' ? readlink $_ : '';
 
 		my @stimes = @stat[8,9,10];
 		my @ntimes = lstat_nsec($_);
