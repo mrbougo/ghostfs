@@ -1,9 +1,17 @@
-ghostfs is a fuse driver that fakes the presence of files, directories and links with (mostly) right stat information. It reports the right size, mode, uid, gid and access/modification/change times.
+ghostfs is a fuse driver that fakes the presence of files, directories and
+links with (mostly) right stat information. It reports the right size, mode,
+uid, gid and access/modification/change times.
 
 Usage:
-First create a list file using "ghostfs-list dir > listfile". Then, mount it using "ghostfs mountpoint listfile".
+First create a list file; then, mount it:
+	ghostfs-list dir > listfile
+	ghostfs mountpoint listfile
+Alternative: using gzip compression and pipes:
+	ghostfs-list dir | gzip > listfile.gz
+	gunzip -c listfile.gz | ghostfs mountpoint -
 
-For more info, read the included perldoc using the commands "perldoc ghostfs" and "perldoc ghostfs-list".
+For more info, read the included perldoc using the commands "perldoc ghostfs"
+and "perldoc ghostfs-list".
 
 Note:
 find can also be used to generate list files:
