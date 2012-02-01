@@ -155,7 +155,7 @@ B<ghostfs> I<mountpoint> I<listfile>
 
 B<ghostfs> is a fuse driver that fakes the presence of files, directories and links with (mostly) right stat information. It reports the right size, mode, uid, gid and access/modification/change times.
 
-Use L<B<ghostfs-list>|ghostfs-list> to generate the file list.
+Use B<ghostfs-list> to generate the file list.
 
 =head1 CAVEATS
 
@@ -163,4 +163,4 @@ There is no subsecond precision for access, modification and change times, due t
 
 =head1 SEE ALSO
 
-L<B<ghostfs-list>|ghostfs-list>
+B<ghostfs-list>
