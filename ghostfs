@@ -25,9 +25,7 @@ my %types_stoi = (
 #prepare tree structure from find-file
 #(see SNAP on perlmonks)
 sub prepare_tree {
-	my ($fname) = @_;
-
-	open(my $f, "<", $fname) or die "Could not open $fname: $!\n";
+	my ($f) = @_;
 
 	my %tree;
 	my @s; #stack, associates full directory paths with their parent node
@@ -62,8 +60,6 @@ sub prepare_tree {
 
 		$node = $child;
 	}
-
-	close $f;
 
 	$tree = (values $tree->{children})[0];
 	return $tree;
@@ -139,10 +135,20 @@ sub getdir {
 pod2usage({ -message => 'Wrong argument count', -exitval => 2 }) if @ARGV != 2;
 
 my ($mountpoint, $listfname) = @ARGV;
-die "Directory not found: $mountpoint\n" unless -d $mountpoint;
-die "File not found: $listfname\n" unless -f $listfname;
 
-$tree = prepare_tree($listfname);
+die "Directory not found: $mountpoint\n" unless -d $mountpoint;
+
+my $f;
+if ($listfname eq '-') {
+	$f = \*STDIN;
+} else {
+	die "File not found: $listfname\n" unless -f $listfname;
+	open($f, "<", $listfname) or die "Could not open $listfname: $!\n";
+}
+
+$tree = prepare_tree($f);
+
+close $f if $f ne \*STDIN;
 
 Fuse::main(
 	mountpoint => $mountpoint,
@@ -164,6 +170,8 @@ B<ghostfs> I<mountpoint> I<listfile>
 =head1 DESCRIPTION
 
 B<ghostfs> is a fuse driver that fakes the presence of files, directories and links with (mostly) right stat information. It reports the right size, mode, uid, gid and access/modification/change times.
+
+If I<listfile> is -, the list is read from standard input.
 
 Use B<ghostfs-list> to generate the file list.
 
