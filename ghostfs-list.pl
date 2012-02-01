@@ -76,8 +76,12 @@ ghostfs-list - List generator for ghostfs
 
 =head1 SYNOPSIS
 
-	ghostfs-list directory
+B<ghostfs-list> I<directory>
 
 =head1 DESCRIPTION
 
-This script generates a file list for ghostfs. It takes a directory as argument and outputs the list to stdout.
+This script generates a file list for B<ghostfs>. It takes a directory as argument and outputs the list to stdout.
+
+=head1 SEE ALSO
+
+B<ghostfs>

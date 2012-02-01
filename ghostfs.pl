@@ -140,3 +140,27 @@ Fuse::main(
 	readlink => \&readlink,
 	getdir => \&getdir,
 );
+
+__END__
+
+=head1 NAME
+
+ghostfs - A fuse driver for a ghost filesystem
+
+=head1 SYNOPSIS
+
+B<ghostfs> I<mountpoint> I<listfile>
+
+=head1 DESCRIPTION
+
+B<ghostfs> is a fuse driver that fakes the presence of files, directories and links with (mostly) right stat information. It reports the right size, mode, uid, gid and access/modification/change times.
+
+Use L<B<ghostfs-list>|ghostfs-list> to generate the file list.
+
+=head1 CAVEATS
+
+There is no subsecond precision for access, modification and change times, due to a limitation in the Perl B<Fuse> module. Block files, FIFOs, sockets and other special files are not supported. Inodes and hardlink counts are ignored.
+
+=head1 SEE ALSO
+
+L<B<ghostfs-list>|ghostfs-list>
