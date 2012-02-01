@@ -33,21 +33,21 @@ sub prepare_tree {
 	my @s; #stack, associates full directory paths with their parent node
 	my $tree = my $node = {};
 	while($_ = next_record($f)) {
-		m/	^.*?      \000   #path
-			 \d+:\d+  \000   #uid:gid
-			 \d+\.\d+ \000   #atime
-			 \d+\.\d+ \000   #mtime
-			 \d+\.\d+ \000   #ctime
-			 \d+      \000   #size
-			 [dlf]    \000   #type
-			 .*?      \000   #link target
-			 [0-7]{4} \000$ #permissions
-			/sx or die "Bad record: $_\n";
-
 		my %entry;
 		my $path;
-		($path, @entry{qw(usergroup atime mtime ctime size type linktarget perm)})
-			= split "\000";
+
+		($path, @entry{qw(usergroup atime mtime ctime size type linktarget perm)}) = 
+			m/^(.*?)       \000  #path
+			   (\d+:\d+)   \000  #uid:gid
+			   (\d+\.\d+)  \000  #atime
+			   (\d+\.\d+)  \000  #mtime
+			   (\d+\.\d+)  \000  #ctime
+			   (\d+)       \000  #size
+			   ([dlfbcps]) \000  #type
+			   (.*?)       \000  #link target
+			   ([0-7]{4})  \000$ #permissions
+			/sx or die "Bad record: $_\n";
+
 		delete $entry{linktarget} if $entry{linktarget} eq '';
 
 		my ($parent,$name) = $path =~ m|(?:(.*)/)?(.*)|;
