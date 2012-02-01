@@ -8,8 +8,6 @@ use Pod::Usage;
 
 use POSIX qw(EINVAL ENOENT);
 
-use Data::Dumper;
-
 my $tree;
 
 my %types_stoi = (
