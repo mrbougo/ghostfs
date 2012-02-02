@@ -35,15 +35,15 @@ sub prepare_tree {
 		my $path;
 
 		($path, @entry{qw(usergroup atime mtime ctime size type linktarget perm)}) = 
-			m/^(.*?)           \000  #path
-			   (\d+:\d+)       \000  #uid:gid
-			   (\d+(?:\.\d+)?) \000  #atime
-			   (\d+(?:\.\d+)?) \000  #mtime
-			   (\d+(?:\.\d+)?) \000  #ctime
-			   (\d+)           \000  #size
-			   ([dlfbcps])     \000  #type
-			   (.*?)           \000  #link target
-			   (0[0-7]{3,4})   \000$ #permissions
+			m/^(.*?)         \000  #path
+			   (\d+:\d+)     \000  #uid:gid
+			   (\d+\.\d+)    \000  #atime
+			   (\d+\.\d+)    \000  #mtime
+			   (\d+\.\d+)    \000  #ctime
+			   (\d+)         \000  #size
+			   ([dlfbcps])   \000  #type
+			   (.*?)         \000  #link target
+			   (0[0-7]{3,4}) \000$ #permissions
 			/sx or die "Bad record: $_\n";
 
 		if ($entry{type} !~ /[dlf]/) {
